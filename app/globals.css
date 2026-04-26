@@ -1,26 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,600;0,700;1,600&family=Caveat:wght@500;600&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-brand-green:       #2D6A4F;
+  --color-brand-green-light: #40916C;
+  --color-brand-green-pale:  #D8F3DC;
+  --color-brand-ochre:       #C9903E;
+  --color-brand-ochre-light: #F4A261;
+  --color-brand-cream:       #FAF7F2;
+  --color-brand-cream-dark:  #F0EAE0;
+
+  --color-neutral-charcoal: #1A1A1A;
+  --color-neutral-mid:      #6B7280;
+  --color-neutral-light:    #D1D5DB;
+  --color-neutral-pale:     #F9FAFB;
+
+  --color-status-success: #40916C;
+  --color-status-warning: #F4A261;
+  --color-status-error:   #E63946;
+  --color-status-info:    #3B82F6;
+
+  --font-sans:   'Inter', sans-serif;
+  --font-serif:  'Lora', Georgia, serif;
+  --font-script: 'Caveat', cursive;
+
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-nav:  0 -1px 0 rgba(0,0,0,0.08), 0 -4px 16px rgba(0,0,0,0.06);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─── Reset ─────────────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
+  * {
+    box-sizing: border-box;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  *::-webkit-scrollbar { display: none; }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ─── App shell ──────────────────────────────────────────────────────────── */
+@layer components {
+
+  /* Mobile: grey bg, centred 430px phone column */
+  .app-body {
+    background-color: #E5E7EB;
+    min-height: 100dvh;
+  }
+
+  .app-content {
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: var(--color-brand-cream);
+    min-height: 100dvh;
+    overflow: hidden;
+    max-width: 430px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.18);
+  }
+
+  /* Desktop (md+): sidebar shifts content right, full width, no phone shell */
+  @media (min-width: 768px) {
+    .app-body {
+      background-color: var(--color-brand-cream);
+    }
+
+    .app-content {
+      margin-left: 240px; /* sidebar width */
+      margin-right: 0;
+      max-width: none;
+      box-shadow: none;
+      min-height: 100dvh;
+    }
+  }
+
+  /* Page scroll area — leaves room for bottom nav on mobile */
+  .page-scroll {
+    overflow-y: auto;
+    padding-bottom: 5rem;
+    height: 100dvh;
+  }
+
+  @media (min-width: 768px) {
+    .page-scroll {
+      padding-bottom: 2rem;
+      height: auto;
+      min-height: 100dvh;
+      overflow-y: visible;
+    }
+  }
+
+  /* ─── Buttons ─────────────────────────────────────────────────────────── */
+  .btn-primary {
+    display: block;
+    width: 100%;
+    background-color: var(--color-brand-green);
+    color: #fff;
+    font-weight: 600;
+    padding: 0.875rem 1rem;
+    border-radius: 1rem;
+    text-align: center;
+    transition: opacity 0.15s, transform 0.15s;
+    cursor: pointer;
+  }
+  .btn-primary:hover  { opacity: 0.92; }
+  .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+
+  .btn-outline {
+    display: block;
+    width: 100%;
+    border: 2px solid var(--color-brand-green);
+    color: var(--color-brand-green);
+    font-weight: 600;
+    padding: 0.875rem 1rem;
+    border-radius: 1rem;
+    text-align: center;
+    transition: background-color 0.15s, transform 0.15s;
+    cursor: pointer;
+  }
+  .btn-outline:hover  { background-color: var(--color-brand-green-pale); }
+  .btn-outline:active { transform: scale(0.97); }
+
+  /* ─── Chips ───────────────────────────────────────────────────────────── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border: 1.5px solid;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .chip-active   { background-color: var(--color-brand-green); color: #fff; border-color: var(--color-brand-green); }
+  .chip-inactive { background-color: #fff; color: var(--color-neutral-charcoal); border-color: var(--color-neutral-light); }
+  .chip-inactive:hover { border-color: var(--color-brand-green); color: var(--color-brand-green); }
+
+  /* ─── Card ────────────────────────────────────────────────────────────── */
+  .card {
+    background-color: #fff;
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+
+  /* ─── Verified badge ──────────────────────────────────────────────────── */
+  .verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-brand-green);
+    background-color: var(--color-brand-green-pale);
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+  }
+
+  /* ─── Input ───────────────────────────────────────────────────────────── */
+  .input-field {
+    width: 100%;
+    background-color: #fff;
+    border: 1.5px solid var(--color-neutral-light);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    color: var(--color-neutral-charcoal);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .input-field::placeholder { color: var(--color-neutral-mid); }
+  .input-field:focus {
+    border-color: var(--color-brand-green);
+    box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.12);
+  }
+
+  /* ─── Section title ───────────────────────────────────────────────────── */
+  .section-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-mid);
+  }
+
+  /* ─── Desktop page wrapper ────────────────────────────────────────────── */
+  /* Centres content with a max-width on very wide screens */
+  .desktop-page {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 2rem;
+  }
 }
