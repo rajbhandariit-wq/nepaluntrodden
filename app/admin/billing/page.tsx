@@ -17,7 +17,7 @@ async function getBillingKpis() {
     admin.from('transactions').select('gross_amount, commission_amount').eq('payment_status', 'captured').gte('created_at', mtdStart),
     admin.from('transactions').select('gross_amount, commission_amount, created_at, payment_status').eq('payment_status', 'captured').order('created_at', { ascending: false }),
     admin.from('payouts').select('amount').eq('status', 'pending'),
-    admin.from('transactions').select('gross_amount, commission_amount, net_payout, payment_method, payment_status, transaction_ref, created_at, bookings(booking_ref)').order('created_at', { ascending: false }).limit(5),
+    admin.from('transactions').select('id, gross_amount, commission_amount, net_payout, payment_method, payment_status, transaction_ref, created_at, bookings(booking_ref)').order('created_at', { ascending: false }).limit(5),
   ])
 
   const revenueMtd   = txMtd?.reduce((s, t) => s + Number(t.gross_amount), 0) ?? 0
