@@ -128,7 +128,7 @@ export default async function BillingDashboard() {
             {(recentTx ?? []).length === 0 && (
               <p className="text-xs text-neutral-mid py-4 text-center">No transactions yet.</p>
             )}
-            {(recentTx ?? []).map((t: { id: string; bookings: { booking_ref: string } | null; gross_amount: number; payment_status: string; payment_method: string }) => (
+            {(recentTx ?? []).map((t) => (
               <div key={t.id} className="flex items-center justify-between text-sm">
                 <div>
                   <p className="font-medium text-neutral-charcoal font-mono text-xs">{t.bookings?.booking_ref ?? '—'}</p>
