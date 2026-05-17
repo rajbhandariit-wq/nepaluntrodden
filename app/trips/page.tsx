@@ -109,9 +109,9 @@ export default async function TripsPage() {
                         <button className="flex flex-col items-center gap-1 py-2 rounded-xl bg-neutral-pale text-xs text-neutral-charcoal font-medium">
                           <Download size={14} className="text-brand-green" /> Offline pack
                         </button>
-                        <button className="flex flex-col items-center gap-1 py-2 rounded-xl bg-neutral-pale text-xs text-neutral-charcoal font-medium">
+                        <Link href={`/inbox/${trip.id}`} className="flex flex-col items-center gap-1 py-2 rounded-xl bg-neutral-pale text-xs text-neutral-charcoal font-medium">
                           <MessageCircle size={14} className="text-brand-green" /> Chat guide
-                        </button>
+                        </Link>
                         <button className="flex flex-col items-center gap-1 py-2 rounded-xl bg-red-50 text-xs text-status-error font-medium">
                           <AlertTriangle size={14} /> SOS
                         </button>

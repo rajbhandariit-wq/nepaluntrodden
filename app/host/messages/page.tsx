@@ -1,9 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { redirect } from 'next/navigation'
 import ConversationList, { type Convo } from '@/components/messages/ConversationList'
 
-async function getConvos(userId: string): Promise<Convo[]> {
+export async function getHostConvos(userId: string): Promise<Convo[]> {
   const admin = createAdminClient()
   const { data: messages } = await admin
     .from('messages')
@@ -47,34 +46,34 @@ async function getConvos(userId: string): Promise<Convo[]> {
   })
 }
 
-export default async function InboxPage() {
+export default async function HostMessagesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
-
-  const convos = await getConvos(user.id)
+  const convos = await getHostConvos(user!.id)
+  const totalUnread = convos.reduce((n, c) => n + (c.unreadCount ?? 0), 0)
 
   return (
-    <div className="flex h-[100dvh] bg-white overflow-hidden">
-      {/* Sidebar */}
+    <div className="flex h-full overflow-hidden -m-4 md:-m-6">
       <div className="flex flex-col w-full md:w-80 md:border-r md:border-neutral-100 md:shrink-0 bg-white">
         <div className="px-5 py-5 border-b border-neutral-100 shrink-0">
-          <h1 className="text-xl font-bold text-neutral-charcoal" style={{ fontFamily: 'Lora, serif' }}>Messages</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-bold text-neutral-charcoal" style={{ fontFamily: 'Lora, serif' }}>Messages</h1>
+            {totalUnread > 0 && (
+              <span className="bg-brand-green text-white text-xs font-bold px-2 py-0.5 rounded-full">{totalUnread}</span>
+            )}
+          </div>
           <p className="text-xs text-neutral-400 mt-0.5">{convos.length} conversation{convos.length !== 1 ? 's' : ''}</p>
         </div>
-        <ConversationList conversations={convos} basePath="/inbox" emptyText="No messages yet" />
+        <ConversationList conversations={convos} basePath="/host/messages" emptyText="No messages from travellers yet" />
       </div>
 
-      {/* Empty state — desktop only */}
       <div className="hidden md:flex flex-1 flex-col items-center justify-center bg-stone-50/60 text-center px-8">
         <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center mb-4">
           <span className="text-2xl">💬</span>
         </div>
         <p className="font-semibold text-neutral-charcoal mb-1">Select a conversation</p>
-        <p className="text-sm text-neutral-400">Choose a conversation from the left to start messaging.</p>
+        <p className="text-sm text-neutral-400">Messages from travellers about your listings appear here.</p>
       </div>
     </div>
   )
 }
-
-export { getConvos }

@@ -23,8 +23,25 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  // Refresh session so it doesn't expire while user is active
-  await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Block pending/inactive hosts from accessing any page
+  if (user?.user_metadata?.role === 'host') {
+    const path = request.nextUrl.pathname
+    const allowed = path.startsWith('/pending') || path.startsWith('/login') ||
+                    path.startsWith('/signup') || path.startsWith('/api/') ||
+                    path.startsWith('/auth/')
+    if (!allowed) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('status')
+        .eq('id', user.id)
+        .single()
+      if (profile?.status !== 'active') {
+        return NextResponse.redirect(new URL('/pending', request.url))
+      }
+    }
+  }
 
   return supabaseResponse
 }

@@ -66,27 +66,44 @@ function mapReview(row: Record<string, unknown>): Review {
   }
 }
 
+async function fetchGuideById(supabase: Awaited<ReturnType<typeof createClient>>, id: string) {
+  const { data } = await supabase.from('guides').select('*').eq('id', id).single()
+  return data as Record<string, unknown> | null
+}
+
 export async function getAllListings(): Promise<Listing[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('listings')
-    .select('*, guides(*)')
+    .select('*')
+    .eq('status', 'approved')
     .order('created_at', { ascending: false })
 
   if (error || !data) return []
-  return data.map((row) => mapListing(row as Record<string, unknown>))
+
+  const rows = data as Record<string, unknown>[]
+  const guideIds = [...new Set(rows.map(r => r.guide_id as string).filter(Boolean))]
+  const guideMap: Record<string, Record<string, unknown>> = {}
+  await Promise.all(guideIds.map(async id => {
+    const g = await fetchGuideById(supabase, id)
+    if (g) guideMap[id] = g
+  }))
+
+  return rows.map(row => mapListing({ ...row, guides: guideMap[row.guide_id as string] ?? null }))
 }
 
 export async function getListingBySlug(slug: string): Promise<Listing | null> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('listings')
-    .select('*, guides(*)')
+    .select('*')
     .eq('slug', slug)
     .single()
 
   if (error || !data) return null
-  return mapListing(data as Record<string, unknown>)
+  const row = data as Record<string, unknown>
+  const guide = row.guide_id ? await fetchGuideById(supabase, row.guide_id as string) : null
+  return mapListing({ ...row, guides: guide })
 }
 
 export async function getListingReviews(listingId: string): Promise<Review[]> {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Check, CreditCard, Smartphone, Building2, Banknote, MapPin } from 'lucide-react'
 import type { Listing } from '@/lib/types'
@@ -24,6 +24,15 @@ export default function BookingWizard({ listing }: { listing: Listing }) {
   const [bookingRef, setBookingRef] = useState('NEP-8723A')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+  const [bookedRanges, setBookedRanges] = useState<{ from: string; to: string }[]>([])
+  const [dateError, setDateError] = useState('')
+
+  useEffect(() => {
+    fetch(`/api/listings/${listing.id}/availability`)
+      .then(r => r.json())
+      .then(d => setBookedRanges(d.ranges ?? []))
+      .catch(() => {})
+  }, [listing.id])
 
   const addonsTotal = selectedAddons.reduce((sum, id) => {
     const addon = ADDONS.find((a) => a.id === id)
@@ -40,7 +49,28 @@ export default function BookingWizard({ listing }: { listing: Listing }) {
   function toggleAddon(id: string) {
     setSelectedAddons((prev) => prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id])
   }
-  function next() { if (step < STEPS.length - 1) setStep(step + 1) }
+  function datesOverlap(from: string, to: string) {
+    return bookedRanges.some(r => from <= r.to && to >= r.from)
+  }
+
+  function next() {
+    if (step === 0) {
+      if (!dateFrom || !dateTo) {
+        setDateError('Please select both start and end dates.')
+        return
+      }
+      if (dateFrom > dateTo) {
+        setDateError('End date must be after start date.')
+        return
+      }
+      if (datesOverlap(dateFrom, dateTo)) {
+        setDateError('Those dates are already booked. Please choose different dates.')
+        return
+      }
+      setDateError('')
+    }
+    if (step < STEPS.length - 1) setStep(step + 1)
+  }
   function back() { if (step > 0) setStep(step - 1) }
 
   async function confirmBooking() {
@@ -68,6 +98,11 @@ export default function BookingWizard({ listing }: { listing: Listing }) {
         if (res.ok) {
           const data = await res.json()
           setBookingRef(data.booking_ref ?? bookingRef)
+        } else if (res.status === 409) {
+          const data = await res.json()
+          setSaveError(data.error ?? 'These dates are no longer available.')
+          setSaving(false)
+          return
         }
       }
       // If not logged in, proceed with the mock ref (guest checkout)
@@ -155,16 +190,49 @@ export default function BookingWizard({ listing }: { listing: Listing }) {
           <div>
             <h2 className="text-lg font-bold text-neutral-charcoal mb-1">Select your dates</h2>
             <p className="text-sm text-neutral-mid mb-5">{listing.durationDays ? `${listing.durationDays}-day trip` : 'Choose check-in & check-out'}</p>
-            <div className="space-y-3 mb-6">
+
+            {bookedRanges.length > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-4">
+                <p className="text-xs font-semibold text-status-error mb-2">Already booked — unavailable dates:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {bookedRanges.map((r, i) => (
+                    <span key={i} className="text-xs bg-red-100 text-status-error px-2 py-0.5 rounded-full font-medium">
+                      {r.from} → {r.to}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-3 mb-4">
               <div>
                 <label className="text-xs font-semibold text-neutral-mid block mb-1.5">Start date</label>
-                <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="input-field" />
+                <input
+                  type="date"
+                  value={dateFrom}
+                  min={new Date().toISOString().split('T')[0]}
+                  onChange={(e) => { setDateFrom(e.target.value); setDateError('') }}
+                  className="input-field"
+                />
               </div>
               <div>
                 <label className="text-xs font-semibold text-neutral-mid block mb-1.5">End date</label>
-                <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="input-field" />
+                <input
+                  type="date"
+                  value={dateTo}
+                  min={dateFrom || new Date().toISOString().split('T')[0]}
+                  onChange={(e) => { setDateTo(e.target.value); setDateError('') }}
+                  className="input-field"
+                />
               </div>
             </div>
+
+            {dateError && (
+              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">
+                <p className="text-xs text-status-error font-medium">{dateError}</p>
+              </div>
+            )}
+
             {listing.bestMonths.length > 0 && (
               <div className="bg-brand-green-pale/50 rounded-2xl p-4 mb-6">
                 <p className="text-xs font-semibold text-brand-green mb-2">Best months to visit</p>

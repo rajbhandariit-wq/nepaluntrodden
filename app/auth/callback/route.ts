@@ -8,7 +8,19 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient()
-    await supabase.auth.exchangeCodeForSession(code)
+    const { data: { user } } = await supabase.auth.exchangeCodeForSession(code)
+
+    if (user?.user_metadata?.role === 'host') {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('status')
+        .eq('id', user.id)
+        .single()
+
+      if (profile?.status !== 'active') {
+        return NextResponse.redirect(`${origin}/pending`)
+      }
+    }
   }
 
   return NextResponse.redirect(`${origin}${next}`)
