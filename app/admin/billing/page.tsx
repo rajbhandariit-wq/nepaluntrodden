@@ -131,7 +131,7 @@ export default async function BillingDashboard() {
             {(recentTx ?? []).map((t) => (
               <div key={t.id} className="flex items-center justify-between text-sm">
                 <div>
-                  <p className="font-medium text-neutral-charcoal font-mono text-xs">{t.bookings?.booking_ref ?? '—'}</p>
+                  <p className="font-medium text-neutral-charcoal font-mono text-xs">{(Array.isArray(t.bookings) ? t.bookings[0] : t.bookings)?.booking_ref ?? '—'}</p>
                   <p className="text-xs text-neutral-mid capitalize">{t.payment_method}</p>
                 </div>
                 <div className="text-right">
