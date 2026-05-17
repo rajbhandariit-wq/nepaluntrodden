@@ -5,15 +5,16 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Users, MapPin, Calendar,
-  MessageSquare, LogOut, Mountain, Menu, X,
+  MessageSquare, LogOut, Mountain, Menu, X, CreditCard,
 } from 'lucide-react'
 
 const NAV = [
-  { href: '/admin',           label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/admin/users',     label: 'Users',     icon: Users },
-  { href: '/admin/listings',  label: 'Listings',  icon: MapPin },
-  { href: '/admin/bookings',  label: 'Bookings',  icon: Calendar },
-  { href: '/admin/messages',  label: 'Messages',  icon: MessageSquare },
+  { href: '/admin',              label: 'Dashboard',   icon: LayoutDashboard, exact: true },
+  { href: '/admin/users',        label: 'Users',       icon: Users },
+  { href: '/admin/listings',     label: 'Listings',    icon: MapPin },
+  { href: '/admin/bookings',     label: 'Bookings',    icon: Calendar },
+  { href: '/admin/billing',      label: 'Billing',     icon: CreditCard },
+  { href: '/admin/messages',     label: 'Messages',    icon: MessageSquare },
 ]
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
