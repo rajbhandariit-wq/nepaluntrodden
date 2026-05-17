@@ -31,11 +31,12 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
   const { id } = await params
   const admin = createAdminClient()
 
-  const [{ data: authUser, error }, { data: profile }] = await Promise.all([
+  const [{ data: authData, error }, { data: profile }] = await Promise.all([
     admin.auth.admin.getUserById(id),
     admin.from('profiles').select('*').eq('id', id).single(),
   ])
 
+  const authUser = authData?.user
   if (error || !authUser) notFound()
 
   const meta = authUser.user_metadata ?? {}
