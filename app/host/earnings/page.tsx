@@ -124,13 +124,17 @@ export default async function HostEarningsPage() {
 
         <div className="space-y-2">
           {(transactions ?? []).map(t => {
-            const b = t.bookings as { booking_ref: string; date_from: string; date_to: string; host_payout_status: string; listings: { title: string } | null } | null
+            type BookingShape = { booking_ref: string; date_from: string; date_to: string; host_payout_status: string; listings: { title: string } | { title: string }[] | null }
+            const bRaw = t.bookings as unknown as BookingShape | BookingShape[] | null
+            const b = Array.isArray(bRaw) ? bRaw[0] ?? null : bRaw
+            const listingsRaw = b?.listings
+            const listing = Array.isArray(listingsRaw) ? listingsRaw[0] ?? null : listingsRaw
             return (
               <div key={t.id} className="bg-white rounded-2xl shadow-card p-4">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-neutral-charcoal truncate">
-                      {b?.listings?.title ?? 'Unknown listing'}
+                      {listing?.title ?? 'Unknown listing'}
                     </p>
                     <p className="text-xs font-mono text-brand-green">{b?.booking_ref ?? '—'}</p>
                     {b?.date_from && (

@@ -99,8 +99,8 @@ async function createTransactionForBooking({
   const commissionAmount = +(grossAmount * commissionRate).toFixed(2)
   const netPayout = +(grossAmount - commissionAmount).toFixed(2)
 
-  const guideRow = listing?.guides as { user_id: string } | null
-  const hostId   = guideRow?.user_id ?? null
+  const guidesRaw = listing?.guides as unknown as { user_id: string } | { user_id: string }[] | null | undefined
+  const hostId = Array.isArray(guidesRaw) ? (guidesRaw[0]?.user_id ?? null) : (guidesRaw?.user_id ?? null)
 
   await admin.from('transactions').insert({
     booking_id:        bookingId,
