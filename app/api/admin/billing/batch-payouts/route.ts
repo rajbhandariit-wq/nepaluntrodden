@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     .from('bookings')
     .select(`
       id, booking_ref, grand_total, date_from, date_to, listing_id,
-      listings ( guide_id, guides ( user_id, commission_rate:listings(commission_rate) ) )
+      listings ( guide_id, guides ( user_id ) )
     `)
     .eq('status', 'confirmed')
     .eq('host_payout_status', 'pending')
@@ -55,8 +55,9 @@ export async function POST(request: Request) {
   const periodEnd   = cutoff
 
   for (const b of bookings) {
-    const guide = (b.listings as { guide_id: string; guides: { user_id: string } } | null)
-    const hostId = guide?.guides?.user_id
+    const listing = (b.listings as unknown as { guide_id: string; guides: { user_id: string } | { user_id: string }[] } | null)
+    const guidesRaw = listing?.guides
+    const hostId = Array.isArray(guidesRaw) ? guidesRaw[0]?.user_id : guidesRaw?.user_id
     if (!hostId) continue
 
     // Net payout = 80% of grand_total (platform keeps 20% commission)
