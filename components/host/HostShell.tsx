@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, PlusCircle, Mountain, Menu, X, LogOut, ExternalLink, CalendarDays, MessageCircle } from 'lucide-react'
+import { LayoutDashboard, PlusCircle, Mountain, Menu, X, LogOut, ExternalLink, CalendarDays, MessageCircle, Wallet } from 'lucide-react'
 
 const NAV = [
-  { href: '/host',              label: 'My Listings', icon: LayoutDashboard,  exact: true },
+  { href: '/host',              label: 'My Listings', icon: LayoutDashboard, exact: true },
   { href: '/host/listings/new', label: 'New Listing',  icon: PlusCircle },
   { href: '/host/bookings',     label: 'Bookings',     icon: CalendarDays },
+  { href: '/host/earnings',     label: 'Earnings',     icon: Wallet },
   { href: '/host/messages',     label: 'Messages',     icon: MessageCircle },
 ]
 
