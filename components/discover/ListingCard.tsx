@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Heart, MapPin, Clock, Users } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Listing } from '@/lib/types'
 import StarRating from '@/components/ui/StarRating'
 import Badge from '@/components/ui/Badge'
@@ -13,8 +13,31 @@ interface ListingCardProps {
   featured?: boolean
 }
 
+const wishlistKey = (id: string) => `nu_wish_${id}`
+
 export default function ListingCard({ listing, featured }: ListingCardProps) {
   const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    setSaved(!!localStorage.getItem(wishlistKey(listing.id)))
+  }, [listing.id])
+
+  const toggleSave = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const next = !saved
+    setSaved(next)
+    if (next) {
+      localStorage.setItem(wishlistKey(listing.id), JSON.stringify({
+        id: listing.id, slug: listing.slug, title: listing.title,
+        image: listing.images[0], district: listing.district,
+        pricePerPerson: listing.pricePerPerson, currency: listing.currency,
+        rating: listing.rating, reviewCount: listing.reviewCount, type: listing.type,
+      }))
+    } else {
+      localStorage.removeItem(wishlistKey(listing.id))
+    }
+  }
 
   return (
     <div className={cn('card mx-4 mb-4', featured && 'ring-2 ring-brand-ochre/40')}>
@@ -41,7 +64,7 @@ export default function ListingCard({ listing, featured }: ListingCardProps) {
         </div>
         {/* Save button */}
         <button
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSaved(!saved) }}
+          onClick={toggleSave}
           className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm"
           aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
         >

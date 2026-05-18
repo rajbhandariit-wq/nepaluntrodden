@@ -12,13 +12,13 @@ const badges = [
 ]
 
 const menuItems = [
-  { icon: Wallet,   label: 'Wallet & payments',  sub: 'Balance: $0' },
-  { icon: Heart,    label: 'Wishlist',            sub: '4 saved experiences' },
-  { icon: Shield,   label: 'ID verification',     sub: 'Verified ✓' },
-  { icon: Phone,    label: 'Emergency contacts',  sub: 'Add emergency contact' },
-  { icon: Bell,     label: 'Notifications',       sub: 'Bookings, alerts, offers' },
-  { icon: Globe,    label: 'Language',            sub: 'English' },
-  { icon: Settings, label: 'Privacy & data',      sub: 'Manage your data' },
+  { icon: Wallet,   label: 'Wallet & payments',  sub: 'Balance: $0',              href: '/profile/wallet' },
+  { icon: Heart,    label: 'Wishlist',            sub: 'Saved experiences',        href: '/profile/wishlist' },
+  { icon: Shield,   label: 'ID verification',     sub: 'Verified ✓',               href: '/profile/id-verification' },
+  { icon: Phone,    label: 'Emergency contacts',  sub: 'Add emergency contact',    href: '/profile/emergency-contacts' },
+  { icon: Bell,     label: 'Notifications',       sub: 'Bookings, alerts, offers', href: '/profile/notifications' },
+  { icon: Globe,    label: 'Language',            sub: 'English',                  href: '/profile/language' },
+  { icon: Settings, label: 'Privacy & data',      sub: 'Manage your data',         href: '/profile/privacy' },
 ]
 
 export default async function ProfilePage() {
@@ -116,10 +116,11 @@ export default async function ProfilePage() {
         <div className="px-4 md:px-0 md:pb-8">
           <p className="section-title mb-3">Account</p>
           <div className="card overflow-hidden">
-            {menuItems.map(({ icon: Icon, label, sub }, i) => (
-              <button
+            {menuItems.map(({ icon: Icon, label, sub, href }, i) => (
+              <Link
                 key={label}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-neutral-pale transition-colors ${i < menuItems.length - 1 ? 'border-b border-neutral-light/60' : ''}`}
+                href={href}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 active:bg-neutral-pale transition-colors ${i < menuItems.length - 1 ? 'border-b border-neutral-light/60' : ''}`}
               >
                 <div className="w-8 h-8 rounded-xl bg-neutral-pale flex items-center justify-center shrink-0">
                   <Icon size={16} className="text-brand-green" />
@@ -129,7 +130,7 @@ export default async function ProfilePage() {
                   <p className="text-xs text-neutral-mid truncate">{sub}</p>
                 </div>
                 <ChevronRight size={16} className="text-neutral-light shrink-0" />
-              </button>
+              </Link>
             ))}
           </div>
 

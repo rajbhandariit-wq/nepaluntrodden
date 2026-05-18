@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import BottomNav from '@/components/nav/BottomNav'
 import SidebarNav from '@/components/nav/SidebarNav'
+import NavigationProgress from '@/components/nav/NavigationProgress'
 
 export const metadata: Metadata = {
   title: 'Nepal Untrodden — Venture Beyond the Trails',
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {/* Mobile bottom nav — hidden on desktop */}
         <BottomNav />
+        <NavigationProgress />
       </body>
     </html>
   )
