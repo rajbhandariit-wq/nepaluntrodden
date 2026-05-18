@@ -22,7 +22,7 @@ export default function BottomNav() {
       className="md:hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-neutral-light z-50"
       style={{ boxShadow: 'var(--shadow-nav)' }}
     >
-      <div className="flex items-stretch">
+      <div className="flex items-stretch" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {tabs.map(({ href, label, icon: Icon }) => {
           const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
           return (

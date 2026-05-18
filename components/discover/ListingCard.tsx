@@ -19,6 +19,7 @@ export default function ListingCard({ listing, featured }: ListingCardProps) {
   return (
     <div className={cn('card mx-4 mb-4', featured && 'ring-2 ring-brand-ochre/40')}>
       {/* Image */}
+      <Link href={`/listing/${listing.slug}`}>
       <div className="relative overflow-hidden" style={{ aspectRatio: featured ? '16/9' : '3/2' }}>
         <img
           src={listing.images[0]}
@@ -40,7 +41,7 @@ export default function ListingCard({ listing, featured }: ListingCardProps) {
         </div>
         {/* Save button */}
         <button
-          onClick={(e) => { e.preventDefault(); setSaved(!saved) }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSaved(!saved) }}
           className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm"
           aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
         >
@@ -51,6 +52,7 @@ export default function ListingCard({ listing, featured }: ListingCardProps) {
           {listing.type}
         </span>
       </div>
+      </Link>
 
       {/* Body */}
       <Link href={`/listing/${listing.slug}`} className="block p-4">

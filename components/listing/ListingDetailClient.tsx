@@ -18,6 +18,15 @@ export default function ListingDetailClient({
   const [imgIdx, setImgIdx] = useState(0)
   const [saved, setSaved] = useState(false)
 
+  const handleShare = async () => {
+    const url = window.location.href
+    if (navigator.share) {
+      await navigator.share({ title: listing.title, url })
+    } else {
+      await navigator.clipboard.writeText(url)
+    }
+  }
+
   return (
     <div className="page-scroll">
       {/* Desktop top bar */}
@@ -26,7 +35,7 @@ export default function ListingDetailClient({
           <ArrowLeft size={16} /> Back to Discover
         </Link>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-light text-sm text-neutral-charcoal hover:border-brand-green transition-colors">
+          <button onClick={handleShare} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-light text-sm text-neutral-charcoal hover:border-brand-green transition-colors">
             <Share2 size={14} /> Share
           </button>
           <button
@@ -52,7 +61,7 @@ export default function ListingDetailClient({
                 <ArrowLeft size={18} className="text-neutral-charcoal" />
               </Link>
               <div className="flex gap-2">
-                <button className="w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm">
+                <button onClick={handleShare} className="w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm">
                   <Share2 size={16} className="text-neutral-charcoal" />
                 </button>
                 <button
@@ -239,7 +248,7 @@ export default function ListingDetailClient({
       </div>
 
       {/* Mobile sticky booking footer */}
-      <div className="md:hidden fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-neutral-light px-5 py-3 z-40">
+      <div className="md:hidden fixed left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-neutral-light px-5 py-3 z-40" style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom))' }}>
         <div className="flex items-center justify-between">
           <div>
             <span className="text-xl font-bold text-neutral-charcoal">{formatPrice(listing.pricePerPerson, listing.currency)}</span>
