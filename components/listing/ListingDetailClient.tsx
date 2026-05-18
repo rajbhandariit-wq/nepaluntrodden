@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Share2, Heart, MapPin, Clock, Users, Mountain, ShieldCheck, Stethoscope, Users2, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Share2, Heart, MapPin, Clock, Users, Mountain, ShieldCheck, Stethoscope, Users2, ChevronRight, Link2 } from 'lucide-react'
 import type { Listing, Review } from '@/lib/types'
 import StarRating from '@/components/ui/StarRating'
 import Badge from '@/components/ui/Badge'
@@ -17,15 +17,40 @@ export default function ListingDetailClient({
 }) {
   const [imgIdx, setImgIdx] = useState(0)
   const [saved, setSaved] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const touchStartX = useRef(0)
+  const touchEndX = useRef(0)
 
-  const handleShare = async () => {
-    const url = window.location.href
-    if (navigator.share) {
-      await navigator.share({ title: listing.title, url })
-    } else {
-      await navigator.clipboard.writeText(url)
-    }
+  const pageUrl = typeof window !== 'undefined' ? window.location.href : ''
+
+  const handleShare = () => setShareOpen(true)
+
+  const handleCopyLink = async () => {
+    await navigator.clipboard.writeText(pageUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX
+    touchEndX.current = e.targetTouches[0].clientX
+  }
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX
+  }
+  const handleTouchEnd = () => {
+    const diff = touchStartX.current - touchEndX.current
+    if (Math.abs(diff) < 50) return
+    if (diff > 0) setImgIdx(i => Math.min(i + 1, listing.images.length - 1))
+    else setImgIdx(i => Math.max(i - 1, 0))
+  }
+
+  const socialOptions = [
+    { label: 'WhatsApp', bg: '#25D366', letter: 'W', href: `https://wa.me/?text=${encodeURIComponent(listing.title + ' ' + pageUrl)}` },
+    { label: 'Facebook', bg: '#1877F2', letter: 'f', href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}` },
+    { label: 'Twitter', bg: '#000000', letter: 'X', href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(listing.title)}` },
+  ]
 
   return (
     <div className="page-scroll">
@@ -51,7 +76,13 @@ export default function ListingDetailClient({
       <div className="md:grid md:grid-cols-[1fr_1fr] md:items-start">
         {/* Left: Photo panel */}
         <div className="md:sticky md:top-[65px] md:p-6">
-          <div className="relative md:rounded-2xl md:overflow-hidden" style={{ aspectRatio: '4/3' }}>
+          <div
+            className="relative md:rounded-2xl md:overflow-hidden"
+            style={{ aspectRatio: '4/3' }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             <img src={listing.images[imgIdx]} alt={listing.title} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/20" />
 
@@ -246,6 +277,48 @@ export default function ListingDetailClient({
           </div>
         </div>
       </div>
+
+      {/* Share sheet */}
+      {shareOpen && (
+        <>
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50" onClick={() => setShareOpen(false)} />
+          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white rounded-t-3xl z-50 px-5 pt-5" style={{ paddingBottom: 'calc(2rem + env(safe-area-inset-bottom))' }}>
+            <div className="w-10 h-1 bg-neutral-light rounded-full mx-auto mb-5" />
+            <p className="text-sm font-semibold text-neutral-charcoal mb-5">Share this listing</p>
+            <div className="grid grid-cols-4 gap-3 mb-6">
+              {socialOptions.map(opt => (
+                <a
+                  key={opt.label}
+                  href={opt.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setShareOpen(false)}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-xl" style={{ background: opt.bg }}>
+                    {opt.letter}
+                  </div>
+                  <span className="text-[11px] text-neutral-mid">{opt.label}</span>
+                </a>
+              ))}
+              <button onClick={handleCopyLink} className="flex flex-col items-center gap-2">
+                <div className="w-14 h-14 rounded-2xl bg-neutral-pale flex items-center justify-center">
+                  {copied
+                    ? <span className="text-status-success font-bold text-sm">✓</span>
+                    : <Link2 size={22} className="text-neutral-charcoal" />}
+                </div>
+                <span className="text-[11px] text-neutral-mid">{copied ? 'Copied!' : 'Copy link'}</span>
+              </button>
+            </div>
+            <button
+              onClick={() => setShareOpen(false)}
+              className="w-full py-3 rounded-2xl border border-neutral-light text-sm font-medium text-neutral-mid active:bg-neutral-pale transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </>
+      )}
 
       {/* Mobile sticky booking footer */}
       <div className="md:hidden fixed left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-neutral-light px-5 py-3 z-40" style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom))' }}>
